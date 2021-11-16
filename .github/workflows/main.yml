@@ -1,0 +1,39 @@
+name: C/C++ CI
+
+on: [push]
+
+jobs:
+  build-ubuntu:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install CMake
+      run: sudo apt-get install cmake
+    - name: Install gtest
+      run: sudo apt-get install libgtest-dev 
+    - name: Build gtest
+      run: cd /usr/src/gtest && sudo cmake CMakeLists.txt && sudo make 
+    - name: Install lcov
+      run: sudo apt-get install lcov
+    - name: Install cppcheck
+      run:  sudo apt-get install cppcheck
+    - name: Install clang-format
+      run: sudo apt-get install clang-format
+    - name: Install valgrind
+      run: sudo apt-get install valgrind
+    - name: Format code
+      run: clang-format --dry-run --Werror ./*/*.*pp ./tests/*/*.*pp
+    - name: Configure
+      run: mkdir build && cd build && cmake ..
+    - name: Build
+      run: cd build && make
+    - name: Test
+      run: cd build && ./tests/test_setlib
+    - name: report
+      run: cd build && lcov -t test_setlib -d . --exclude *gtest* --exclude *bits* --exclude *c++* -o coverage.info -c && genhtml -o report coverage.info
+    - name: Linter cppcheck
+      run:  cppcheck ./tests/* --enable=all --inconclusive --error-exitcode=1  -I ./include/ --suppress=missingIncludeSystem
+    - name: Check memory leaks
+      run:  cd build && valgrind --tool=memcheck --leak-check=yes ./tests/test_setlib 
