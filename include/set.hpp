@@ -57,22 +57,13 @@ public:
   Set(InputIterator first, InputIterator last);
   explicit Set(std::initializer_list<T> initList);
   Set(const Set<T> &other) : m_Tree(other.m_Tree) {}
-  ~Set() {}
+  ~Set() = default;
+
   void insert(T key) { m_Tree.add(key); }
-
   void erase(T key) { m_Tree.remove(key); }
-
   bool contains(T key) { return m_Tree.exist(key); }
-
-  Set<T> &operator=(const Set<T> &other) {
-    if (this == &other) {
-      return *this;
-    }
-
-    m_Tree = AvlTree<T>(other.m_Tree);
-
-    return *this;
-  }
+  void clear() { return m_Tree.clear(); }
+  Set<T> &operator=(const Set<T> &other);
 
 private:
   AvlTree<T> m_Tree;
@@ -89,3 +80,11 @@ Set<T>::Set(InputIterator first, InputIterator last) : m_Tree() {
 template <typename T>
 Set<T>::Set(std::initializer_list<T> initList)
     : Set(initList.begin(), initList.end()) {}
+
+template <typename T> Set<T> &Set<T>::operator=(const Set<T> &other) {
+  if (this == &other) {
+    return *this;
+  }
+  m_Tree = AvlTree<T>(other.m_Tree);
+  return *this;
+}
