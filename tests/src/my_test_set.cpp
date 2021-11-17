@@ -54,3 +54,38 @@ TEST(createSet, assigmentOpetorTest) {
     EXPECT_EQ(true, setA.contains((double)-i));
   }
 }
+
+TEST(manipulationOperations, insertTest) {
+  const int ELEMENTS_NUM = 100000;
+  Set<double> setA;
+
+  for (size_t i = 0; i < ELEMENTS_NUM; ++i) {
+    setA.insert((double)i);
+  }
+
+  for (size_t i = 0; i < ELEMENTS_NUM; ++i) {
+    EXPECT_EQ(true, setA.contains((double)i));
+  }
+}
+
+TEST(manipulationOperations, eraseTest) {
+  const int ELEMENTS_NUM = 100000;
+  Set<double> setA;
+
+  for (size_t i = 0; i < ELEMENTS_NUM; ++i) {
+    setA.insert((double)i);
+  }
+
+  for (size_t i = 0; i < ELEMENTS_NUM / 2; ++i) {
+    setA.erase((double)i);
+    setA.erase(ELEMENTS_NUM - (double)i);
+  }
+
+  for (size_t i = 0; i < ELEMENTS_NUM; ++i) {
+    if (i == ELEMENTS_NUM / 2) {
+      EXPECT_EQ(true, setA.contains((double)i));
+    } else {
+      EXPECT_EQ(false, setA.contains((double)i));
+    }
+  }
+}
