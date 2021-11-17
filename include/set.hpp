@@ -3,6 +3,7 @@
 #include "avltree.hpp"
 #include <cmath>
 #include <iostream>
+#include <iterator>
 #include <stdexcept>
 #include <string>
 
@@ -52,13 +53,39 @@
 template <typename T> class Set {
 public:
   Set() : m_Tree() {}
-  ~Set() = default;
+  template <typename InputIterator>
+  Set(InputIterator first, InputIterator last);
+  explicit Set(std::initializer_list<T> initList);
+  Set(const Set<T> &other) : m_Tree(other.m_Tree) {}
+  ~Set() {}
   void insert(T key) { m_Tree.add(key); }
 
   void erase(T key) { m_Tree.remove(key); }
 
-  bool find(T key) { return m_Tree.exist(key); }
+  bool contains(T key) { return m_Tree.exist(key); }
+
+  Set<T> &operator=(const Set<T> &other) {
+    if (this == &other) {
+      return *this;
+    }
+
+    m_Tree = AvlTree<T>(other.m_Tree);
+
+    return *this;
+  }
 
 private:
   AvlTree<T> m_Tree;
 };
+
+template <typename T>
+template <typename InputIterator>
+Set<T>::Set(InputIterator first, InputIterator last) : m_Tree() {
+  while (first != last) {
+    m_Tree.add(*first);
+    ++first;
+  }
+}
+template <typename T>
+Set<T>::Set(std::initializer_list<T> initList)
+    : Set(initList.begin(), initList.end()) {}

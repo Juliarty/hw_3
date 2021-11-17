@@ -6,31 +6,35 @@
 template <typename TKey> class AvlTree;
 
 template <typename TKey> class TreeNode {
+public:
+  TreeNode(TKey key, int height = 1)
+      : m_Key(key), m_Height(height), m_LeftChild(nullptr),
+        m_RightChild(nullptr) {}
+  friend AvlTree<TKey>;
+
 protected:
   TKey m_Key;
-  int height;
+  int m_Height;
   TreeNode<TKey> *m_LeftChild;
   TreeNode<TKey> *m_RightChild;
-
-  TreeNode(TKey key)
-      : m_Key(key), height(1), m_LeftChild(nullptr), m_RightChild(nullptr) {}
-
-  friend class AvlTree<TKey>;
 };
 
 template <typename TKey> class AvlTree {
 public:
+  AvlTree() : m_Root(nullptr) {}
+  AvlTree(const AvlTree<TKey> &other);
+  ~AvlTree() { remove_all(m_Root); }
   void add(TKey);
   const TreeNode<TKey> *next(TKey) const;
   const TreeNode<TKey> *prev(TKey) const;
   bool exist(TKey) const;
   void remove(TKey);
-  AvlTree() : root(nullptr) {}
-  ~AvlTree() { remove_all(root); }
+  void clear();
+  AvlTree<TKey> &operator=(const AvlTree<TKey> &other);
 
 private:
-  TreeNode<TKey> *root;
-  static void remove_all(TreeNode<TKey> *);
+  TreeNode<TKey> *m_Root;
+  static void remove_all(TreeNode<TKey> *root);
   static TreeNode<TKey> *add(TKey, TreeNode<TKey> *);
   static const TreeNode<TKey> *find(TKey, const TreeNode<TKey> *);
   static TreeNode<TKey> *remove(TKey, TreeNode<TKey> *);
@@ -42,14 +46,56 @@ private:
   static int get_children_num(const TreeNode<TKey> *);
   static int get_height(const TreeNode<TKey> *);
   static void fix_node(TreeNode<TKey> *);
+  static TreeNode<TKey> *copy(TreeNode<TKey> *);
 };
 
+template <typename TKey>
+TreeNode<TKey> *AvlTree<TKey>::copy(TreeNode<TKey> *root) {
+  if (root == nullptr) {
+    return nullptr;
+  }
+
+  auto result = new TreeNode<TKey>(root->m_Key, root->m_Height);
+  result->m_LeftChild = copy(root->m_LeftChild);
+  result->m_RightChild = copy(root->m_RightChild);
+
+  return result;
+}
+
+template <typename TKey> void AvlTree<TKey>::remove_all(TreeNode<TKey> *root) {
+  if (root == nullptr) {
+    return;
+  }
+  auto left_child = root->m_LeftChild;
+  auto right_child = root->m_RightChild;
+  delete root;
+
+  remove_all(left_child);
+  remove_all(right_child);
+}
+
+template <typename TKey> void AvlTree<TKey>::clear() { remove_all(m_Root); }
+
+template <typename TKey> AvlTree<TKey>::AvlTree(const AvlTree<TKey> &other) {
+  m_Root = copy(other.m_Root);
+}
+
+template <typename TKey>
+AvlTree<TKey> &AvlTree<TKey>::operator=(const AvlTree<TKey> &other) {
+  if (this == &other) {
+    return *this;
+  }
+  remove_all(m_Root);
+  m_Root = copy(other.m_Root);
+  return *this;
+}
+
 template <typename TKey> void AvlTree<TKey>::add(TKey key) {
-  this->root = add(key, this->root);
+  this->m_Root = add(key, this->m_Root);
 }
 
 template <typename TKey> void AvlTree<TKey>::remove(TKey key) {
-  this->root = remove(key, this->root);
+  this->m_Root = remove(key, this->m_Root);
 }
 
 // Returns the root pointer to the modified tree.
@@ -88,7 +134,7 @@ const TreeNode<TKey> *AvlTree<TKey>::find(TKey key,
 }
 
 template <typename TKey> bool AvlTree<TKey>::exist(TKey key) const {
-  return find(key, this->root) != nullptr;
+  return find(key, this->m_Root) != nullptr;
 }
 
 // Returns the root pointer to the modified tree.
@@ -137,7 +183,7 @@ const TreeNode<TKey> *AvlTree<TKey>::find_max(const TreeNode<TKey> *root) {
 }
 template <typename TKey>
 const TreeNode<TKey> *AvlTree<TKey>::next(TKey key) const {
-  TreeNode<TKey> *current_node = this->root;
+  TreeNode<TKey> *current_node = this->m_Root;
   TreeNode<TKey> *res = nullptr;
   while (current_node != nullptr) {
     if (key < current_node->m_Key) {
@@ -151,7 +197,7 @@ const TreeNode<TKey> *AvlTree<TKey>::next(TKey key) const {
 }
 template <typename TKey>
 const TreeNode<TKey> *AvlTree<TKey>::prev(TKey key) const {
-  TreeNode<TKey> *current_node = this->root;
+  TreeNode<TKey> *current_node = this->m_Root;
   TreeNode<TKey> *res = nullptr;
   while (current_node != nullptr) {
     if (key > current_node->m_Key) {
@@ -164,17 +210,6 @@ const TreeNode<TKey> *AvlTree<TKey>::prev(TKey key) const {
   return res;
 }
 
-template <typename TKey> void AvlTree<TKey>::remove_all(TreeNode<TKey> *root) {
-  if (root == nullptr) {
-    return;
-  }
-  auto left_child = root->m_LeftChild;
-  auto right_child = root->m_RightChild;
-  delete root;
-
-  remove_all(left_child);
-  remove_all(right_child);
-}
 template <typename TKey>
 TreeNode<TKey> *AvlTree<TKey>::balance(TreeNode<TKey> *root) {
   if (root == nullptr) {
@@ -239,7 +274,7 @@ TreeNode<TKey> *AvlTree<TKey>::small_right_rotate(TreeNode<TKey> *root) {
 }
 
 template <typename TKey> void AvlTree<TKey>::fix_node(TreeNode<TKey> *node) {
-  node->height =
+  node->m_Height =
       std::max(get_height(node->m_LeftChild), get_height(node->m_RightChild)) +
       1;
 }
@@ -258,5 +293,5 @@ int AvlTree<TKey>::get_height(const TreeNode<TKey> *node) {
   if (node == nullptr) {
     return 0;
   }
-  return node->height;
+  return node->m_Height;
 }
