@@ -2,8 +2,12 @@
 
 #include <gtest/gtest.h>
 
+#include <algorithm>
+#include <random>
 #include <set>
 #include <stdexcept>
+#include <time.h>
+#include <vector>
 
 TEST(createSet, defaultCreationTest) {
   Set<int> set;
@@ -196,4 +200,58 @@ TEST(constMethods, lowerBoundTest) {
   EXPECT_EQ(-1, *set.lower_bound(-1));
   EXPECT_EQ(4, *set.lower_bound(3));
   EXPECT_EQ(set.end(), set.lower_bound(6));
+}
+
+TEST(integrationTest, randomElementsTest) {
+  const size_t MAX_ELEMENT = 1e5;
+  const size_t ELEMENTS_NUM = 1e5;
+  std::array<int, ELEMENTS_NUM> data;
+  std::mt19937 gen(42);
+  std::for_each(data.begin(), data.end(),
+                [&](int &a) { a = gen() % MAX_ELEMENT; });
+
+  Set<int> mySet(data.begin(), data.end());
+  std::set<int> stdSet(data.begin(), data.end());
+
+  std::set<int>::iterator stdIt;
+  Set<int>::iterator myIt;
+
+  for (myIt = mySet.begin(), stdIt = stdSet.begin(); myIt != --mySet.end();) {
+    auto el = *stdIt;
+    EXPECT_EQ(*(stdIt++), *(myIt++));
+    EXPECT_EQ(*(stdIt--), *(myIt--));
+    EXPECT_EQ(*(++stdIt), *(++myIt));
+    EXPECT_EQ(*(--stdIt), *(--myIt));
+    EXPECT_EQ(*(++stdIt), *(++myIt));
+
+    EXPECT_EQ(stdSet.size(), mySet.size());
+    EXPECT_EQ(*stdSet.find(el), *mySet.find(el));
+    mySet.erase(el);
+    stdSet.erase(el);
+    EXPECT_EQ(stdSet.end(), stdSet.find(el));
+    EXPECT_EQ(mySet.end(), mySet.find(el));
+    EXPECT_EQ(stdSet.size(), mySet.size());
+
+    mySet.insert(el);
+    stdSet.insert(el);
+    EXPECT_EQ(stdSet.size(), mySet.size());
+    EXPECT_EQ(*stdSet.find(el), *mySet.find(el));
+
+    mySet.erase(el);
+    stdSet.erase(el);
+
+    auto tmp = gen() % MAX_ELEMENT;
+    auto myLowerBound = mySet.lower_bound(tmp);
+    auto stdLowerBound = stdSet.lower_bound(tmp);
+
+    if (stdLowerBound == stdSet.end()) {
+      EXPECT_EQ(mySet.end(), myLowerBound);
+    } else {
+      EXPECT_EQ(*stdLowerBound, *myLowerBound);
+    }
+  }
+  stdSet.clear();
+  mySet.clear();
+  EXPECT_EQ(stdSet.size(), mySet.size());
+  EXPECT_EQ(stdSet.empty(), mySet.empty());
 }

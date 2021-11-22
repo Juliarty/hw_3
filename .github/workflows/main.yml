@@ -24,16 +24,20 @@ jobs:
     - name: Install valgrind
       run: sudo apt-get install valgrind
     - name: Format code
-      run: clang-format --dry-run --Werror ./*/*.*pp ./tests/*/*.*pp
+      run: clang-format --dry-run --Werror ./*/*.*pp ./tests/src/*.*pp ./tests/speed_test/src/*.*pp 
     - name: Configure
       run: mkdir build && cd build && cmake ..
     - name: Build
       run: cd build && make
     - name: Test
-      run: cd build && ./tests/test_setlib && ./tests/extra_test/extra_test_setlib 
+      run: cd build && ./tests/test_setlib
+    - name: leshiy1295 Test
+      run: cd build && ./tests/extra_test/extra_test_setlib
+    - name: speed Test
+      run: cd build && ./tests/speed_test/speed_test_setlib 
     - name: report
       run: cd build && lcov -t test_setlib -d . --exclude *gtest* --exclude *bits* --exclude *c++* -o coverage.info -c && genhtml -o report coverage.info
     - name: Linter cppcheck
-      run:  cppcheck ./tests/src --enable=all --inconclusive --error-exitcode=1  -I ./include/ --suppress=missingIncludeSystem
+      run:  cppcheck ./tests/src ./tests/speed_test/src --enable=all --inconclusive --error-exitcode=1  -I ./include/ --suppress=missingIncludeSystem
     - name: Check memory leaks
       run:  cd build && valgrind --tool=memcheck --leak-check=yes ./tests/test_setlib && valgrind --tool=memcheck --leak-check=yes ./tests/extra_test/extra_test_setlib 

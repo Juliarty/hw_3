@@ -91,6 +91,9 @@ typename AvlTree<TKey>::const_iterator AvlTree<TKey>::end() const {
 
 template <typename TKey>
 typename AvlTree<TKey>::const_iterator AvlTree<TKey>::find(TKey key) const {
+  if (m_Root == nullptr) {
+    return AvlTreeConstIterator<TKey>(nullptr, nullptr);
+  }
   const TreeNode<TKey> *resNode = lower_bound(key, m_Root);
   if (resNode == nullptr || (resNode->m_Key < key || key < resNode->m_Key)) {
     return AvlTreeConstIterator<TKey>(nullptr, m_Root->m_RightmostNode);
@@ -102,6 +105,9 @@ typename AvlTree<TKey>::const_iterator AvlTree<TKey>::find(TKey key) const {
 template <typename TKey>
 typename AvlTree<TKey>::const_iterator
 AvlTree<TKey>::lower_bound(TKey key) const {
+  if (m_Root == nullptr) {
+    return AvlTreeConstIterator<TKey>(nullptr, nullptr);
+  }
   const TreeNode<TKey> *resNode = lower_bound(key, m_Root);
   if (resNode == nullptr) {
     return AvlTreeConstIterator<TKey>(nullptr, m_Root->m_RightmostNode);

@@ -15,3 +15,5 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${SETLIB_INCLUDE_DIRS})
 add_subdirectory(tests)
 
 add_subdirectory(tests/extra_test)
+add_subdirectory(tests/speed_test)
+
