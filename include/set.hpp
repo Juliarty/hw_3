@@ -49,15 +49,20 @@
 // осуществляться автоматическая сборка и тестирование проекта (хотя бы с
 // помощью программы, указанной выше). Без покрытия тестами каждый пункт
 // оценивается в 50% стоимости.
+template <typename T> class SetConstIterator;
 
 template <typename T> class Set {
 public:
+  typedef SetConstIterator<T> const_iterator;
   Set() : m_Tree() {}
   template <typename InputIterator>
   Set(InputIterator first, InputIterator last);
   explicit Set(std::initializer_list<T> initList);
   Set(const Set<T> &other) : m_Tree(other.m_Tree) {}
   ~Set() = default;
+
+  const_iterator begin() const { return SetConstIterator<T>(m_Tree.begin()); }
+  const_iterator end() const { return SetConstIterator<T>(m_Tree.end()); }
 
   void insert(T key) { m_Tree.add(key); }
   void erase(T key) { m_Tree.remove(key); }
@@ -87,4 +92,59 @@ template <typename T> Set<T> &Set<T>::operator=(const Set<T> &other) {
   }
   m_Tree = AvlTree<T>(other.m_Tree);
   return *this;
+}
+
+template <typename T> class SetConstIterator {
+public:
+  typedef typename std::allocator<T>::difference_type difference_type;
+  typedef typename std::allocator<T>::value_type value_type;
+  typedef T &reference;
+  typedef const T &const_reference;
+  typedef T *pointer;
+  typedef const T *const_pointer;
+  typedef std::bidirectional_iterator_tag iterator_category;
+
+  const T &operator*() const { return *m_AvlTreeConstIterator; };
+  SetConstIterator<T> &operator++();
+  SetConstIterator<T> operator++(int);
+  SetConstIterator<T> &operator--();
+  SetConstIterator<T> operator--(int);
+
+  bool operator==(const SetConstIterator<T> &other) const {
+    return m_AvlTreeConstIterator == other.m_AvlTreeConstIterator;
+  }
+  bool operator!=(const SetConstIterator<T> &other) const {
+    return m_AvlTreeConstIterator != other.m_AvlTreeConstIterator;
+  }
+
+  friend Set<T>;
+
+protected:
+  SetConstIterator(AvlTreeConstIterator<T> iterator)
+      : m_AvlTreeConstIterator(iterator) {}
+
+private:
+  AvlTreeConstIterator<T> m_AvlTreeConstIterator;
+};
+
+template <typename T> SetConstIterator<T> &SetConstIterator<T>::operator++() {
+  ++m_AvlTreeConstIterator;
+  return *this;
+}
+
+template <typename T> SetConstIterator<T> SetConstIterator<T>::operator++(int) {
+  auto res = *this;
+  ++m_AvlTreeConstIterator;
+  return res;
+}
+
+template <typename T> SetConstIterator<T> &SetConstIterator<T>::operator--() {
+  --m_AvlTreeConstIterator;
+  return *this;
+}
+
+template <typename T> SetConstIterator<T> SetConstIterator<T>::operator--(int) {
+  auto res = *this;
+  --m_AvlTreeConstIterator;
+  return res;
 }

@@ -89,3 +89,38 @@ TEST(manipulationOperations, eraseTest) {
     }
   }
 }
+
+TEST(setIterator, incrementTest) {
+  const int ELEMENTS_NUM = 100000;
+  Set<double> setA;
+
+  for (size_t i = 0; i < ELEMENTS_NUM; ++i) {
+    setA.insert((double)i);
+  }
+
+  int i = 0;
+  for (auto it = setA.begin(); it != setA.end(); ++it) {
+    EXPECT_EQ(i++, *it);
+  }
+
+  EXPECT_EQ(ELEMENTS_NUM, i);
+}
+
+TEST(setIterator, decrementTest) {
+  const int ELEMENTS_NUM = 100000;
+  Set<double> setA;
+
+  for (size_t i = 0; i < ELEMENTS_NUM; ++i) {
+    setA.insert((double)i);
+  }
+
+  int i = 5;
+  auto it = std::next(setA.begin(), 5);
+
+  for (; it != setA.begin(); --it) {
+    EXPECT_EQ(i--, *it);
+  }
+
+  EXPECT_EQ(i, *it);
+  EXPECT_EQ(0, i);
+}
