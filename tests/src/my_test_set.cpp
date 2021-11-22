@@ -92,14 +92,14 @@ TEST(manipulationOperations, eraseTest) {
 
 TEST(setIterator, incrementTest) {
   const int ELEMENTS_NUM = 100000;
-  Set<double> setA;
+  Set<double> set;
 
   for (size_t i = 0; i < ELEMENTS_NUM; ++i) {
-    setA.insert((double)i);
+    set.insert((double)i);
   }
 
   int i = 0;
-  for (auto it = setA.begin(); it != setA.end(); ++it) {
+  for (auto it = set.begin(); it != set.end(); ++it) {
     EXPECT_EQ(i++, *it);
   }
 
@@ -108,17 +108,43 @@ TEST(setIterator, incrementTest) {
 
 TEST(setIterator, decrementTest) {
   const int ELEMENTS_NUM = 100000;
-  Set<double> setA;
+  Set<double> set;
 
   for (size_t i = 0; i < ELEMENTS_NUM; ++i) {
-    setA.insert((double)i);
+    set.insert((double)i);
   }
 
   int i = ELEMENTS_NUM;
-  auto it = --setA.end();
-  for (; it != setA.begin(); --it) {
+  auto it = --set.end();
+  for (; it != set.begin(); --it) {
     EXPECT_EQ(--i, *it);
   }
 
   EXPECT_EQ(0, *it);
+}
+
+TEST(setIterator, dereferenceTest) {
+  Set<int> set{-1, 0, 1};
+  auto it = set.begin();
+  EXPECT_EQ(-1, *it);
+}
+
+TEST(setIterator, postIncrementTest) {
+  Set<int> set{-1, 0, 1};
+  auto it = set.begin();
+  EXPECT_EQ(-1, *it++);
+}
+
+TEST(setIterator, postDecrementTest) {
+  Set<int> set{-1, 0, 1};
+  auto it = --set.end();
+  EXPECT_EQ(1, *it--);
+}
+
+TEST(setIterator, rangeForTest) {
+  Set<int> set{0, 1, 2, 3, 4};
+  int i = 0;
+  for (auto el : set) {
+    EXPECT_EQ(i++, el);
+  }
 }
