@@ -10,7 +10,7 @@
 #include <vector>
 
 #define TEST_DATA_ELEMENTS_NUM 1e6
-#define TEST_PERFORMANCE_DECREASE_COEFF 2
+#define TEST_PERFORMANCE_DECREASE_COEFF 3
 
 void speedTestFramework(
     void (*myFunc)(Set<int> &, int), void (*stdFunc)(std::set<int> &, int),
