@@ -38,11 +38,11 @@ public:
 
   AvlTree() : m_Root(nullptr) {}
   AvlTree(const AvlTree<TKey> &other);
-  ~AvlTree() { remove_all(m_Root); }
+  ~AvlTree() { removeAll(m_Root); }
   void add(TKey);
   const TreeNode<TKey> *next(TKey) const;
   const TreeNode<TKey> *prev(TKey) const;
-  bool exist(TKey) const;
+  bool exists(TKey) const;
   void remove(TKey);
   void clear();
   const_iterator begin() const;
@@ -52,18 +52,18 @@ public:
 
 private:
   TreeNode<TKey> *m_Root;
-  static void remove_all(TreeNode<TKey> *root);
+  static void removeAll(TreeNode<TKey> *root);
   static TreeNode<TKey> *add(TKey, TreeNode<TKey> *);
   static const TreeNode<TKey> *find(TKey, const TreeNode<TKey> *);
   static TreeNode<TKey> *remove(TKey, TreeNode<TKey> *);
-  static const TreeNode<TKey> *find_max(const TreeNode<TKey> *);
+  static const TreeNode<TKey> *findMax(const TreeNode<TKey> *);
   static TreeNode<TKey> *balance(TreeNode<TKey> *);
-  static int get_balance(const TreeNode<TKey> *);
-  static TreeNode<TKey> *small_left_rotate(TreeNode<TKey> *);
-  static TreeNode<TKey> *small_right_rotate(TreeNode<TKey> *);
-  static int get_children_num(const TreeNode<TKey> *);
-  static int get_height(const TreeNode<TKey> *);
-  static void fix_node(TreeNode<TKey> *);
+  static int getBalance(const TreeNode<TKey> *);
+  static TreeNode<TKey> *smallLeftRotate(TreeNode<TKey> *);
+  static TreeNode<TKey> *smallRightRotate(TreeNode<TKey> *);
+  static int getChildrenNum(const TreeNode<TKey> *);
+  static int getHeight(const TreeNode<TKey> *);
+  static void fixNode(TreeNode<TKey> *);
   static TreeNode<TKey> *copy(TreeNode<TKey> *);
 };
 
@@ -94,19 +94,19 @@ TreeNode<TKey> *AvlTree<TKey>::copy(TreeNode<TKey> *root) {
   return result;
 }
 
-template <typename TKey> void AvlTree<TKey>::remove_all(TreeNode<TKey> *root) {
+template <typename TKey> void AvlTree<TKey>::removeAll(TreeNode<TKey> *root) {
   if (root == nullptr) {
     return;
   }
-  auto left_child = root->m_LeftChild;
-  auto right_child = root->m_RightChild;
+  auto leftChild = root->m_LeftChild;
+  auto rightChild = root->m_RightChild;
   delete root;
 
-  remove_all(left_child);
-  remove_all(right_child);
+  removeAll(leftChild);
+  removeAll(rightChild);
 }
 
-template <typename TKey> void AvlTree<TKey>::clear() { remove_all(m_Root); }
+template <typename TKey> void AvlTree<TKey>::clear() { removeAll(m_Root); }
 
 template <typename TKey> AvlTree<TKey>::AvlTree(const AvlTree<TKey> &other) {
   m_Root = copy(other.m_Root);
@@ -117,7 +117,7 @@ AvlTree<TKey> &AvlTree<TKey>::operator=(const AvlTree<TKey> &other) {
   if (this == &other) {
     return *this;
   }
-  remove_all(m_Root);
+  removeAll(m_Root);
   m_Root = copy(other.m_Root);
   return *this;
 }
@@ -143,7 +143,7 @@ TreeNode<TKey> *AvlTree<TKey>::add(TKey key, TreeNode<TKey> *node) {
     node->m_RightChild = add(key, node->m_RightChild);
   }
 
-  fix_node(node);
+  fixNode(node);
 
   return balance(node);
 }
@@ -163,7 +163,7 @@ const TreeNode<TKey> *AvlTree<TKey>::find(TKey key,
   }
 }
 
-template <typename TKey> bool AvlTree<TKey>::exist(TKey key) const {
+template <typename TKey> bool AvlTree<TKey>::exists(TKey key) const {
   return find(key, this->m_Root) != nullptr;
 }
 
@@ -186,36 +186,30 @@ TreeNode<TKey> *AvlTree<TKey>::remove(TKey key, TreeNode<TKey> *root) {
     } else if (root->m_LeftChild != nullptr && root->m_RightChild == nullptr) {
       delete root;
       root = tmp.m_LeftChild;
-      //      tmp.m_Prev->m_Next = root;
-      //      tmp.m_Next->m_Prev = root;
     } else if (root->m_LeftChild == nullptr && root->m_RightChild != nullptr) {
       delete root;
       root = tmp.m_RightChild;
-      // tmp.m_Prev->m_Next = root;
-      // tmp.m_Next->m_Prev = root;
     } else {
-      const TreeNode<TKey> *left_max = find_max(root->m_LeftChild);
+      const TreeNode<TKey> *leftMax = findMax(root->m_LeftChild);
 
-      root->m_Key = left_max->m_Key;
-      //    root->m_Prev = left_max->m_Prev;
-      // root->m_Next and root->m_Next->m_Prev remain the same
-      root->m_LeftChild = remove(left_max->m_Key, root->m_LeftChild);
+      root->m_Key = leftMax->m_Key;
+      root->m_LeftChild = remove(leftMax->m_Key, root->m_LeftChild);
     }
   }
 
   if (root != nullptr) {
-    fix_node(root);
+    fixNode(root);
   }
 
   return balance(root);
 }
 template <typename TKey>
-const TreeNode<TKey> *AvlTree<TKey>::find_max(const TreeNode<TKey> *root) {
+const TreeNode<TKey> *AvlTree<TKey>::findMax(const TreeNode<TKey> *root) {
   if (root->m_RightChild == nullptr) {
     return root;
   }
 
-  return AvlTree<TKey>::find_max(root->m_RightChild);
+  return AvlTree<TKey>::findMax(root->m_RightChild);
 }
 template <typename TKey>
 const TreeNode<TKey> *AvlTree<TKey>::next(TKey key) const {
@@ -233,14 +227,14 @@ const TreeNode<TKey> *AvlTree<TKey>::next(TKey key) const {
 }
 template <typename TKey>
 const TreeNode<TKey> *AvlTree<TKey>::prev(TKey key) const {
-  TreeNode<TKey> *current_node = this->m_Root;
+  TreeNode<TKey> *currentNode = this->m_Root;
   TreeNode<TKey> *res = nullptr;
-  while (current_node != nullptr) {
-    if (key > current_node->m_Key) {
-      res = current_node;
-      current_node = current_node->m_RightChild;
+  while (currentNode != nullptr) {
+    if (key > currentNode->m_Key) {
+      res = currentNode;
+      currentNode = currentNode->m_RightChild;
     } else {
-      current_node = current_node->m_LeftChild;
+      currentNode = currentNode->m_LeftChild;
     }
   }
   return res;
@@ -252,67 +246,66 @@ TreeNode<TKey> *AvlTree<TKey>::balance(TreeNode<TKey> *root) {
     return nullptr;
   }
 
-  if (std::abs(get_balance(root)) < 2) {
+  if (std::abs(getBalance(root)) < 2) {
     return root;
   }
 
-  if (get_balance(root) == 2) {
-    if (get_balance(root->m_LeftChild) == -1) {
-      root->m_LeftChild = small_left_rotate(root->m_LeftChild);
+  if (getBalance(root) == 2) {
+    if (getBalance(root->m_LeftChild) == -1) {
+      root->m_LeftChild = smallLeftRotate(root->m_LeftChild);
     }
-    return small_right_rotate(root);
+    return smallRightRotate(root);
   } else {
-    if (get_balance(root->m_RightChild) == 1) {
-      root->m_RightChild = small_right_rotate(root->m_RightChild);
+    if (getBalance(root->m_RightChild) == 1) {
+      root->m_RightChild = smallRightRotate(root->m_RightChild);
     }
-    return small_left_rotate(root);
+    return smallLeftRotate(root);
   }
 }
 template <typename TKey>
-int AvlTree<TKey>::get_balance(const TreeNode<TKey> *root) {
+int AvlTree<TKey>::getBalance(const TreeNode<TKey> *root) {
   if (root == nullptr) {
     return 0;
   }
 
-  return get_height(root->m_LeftChild) - get_height(root->m_RightChild);
+  return getHeight(root->m_LeftChild) - getHeight(root->m_RightChild);
 }
 template <typename TKey>
-TreeNode<TKey> *AvlTree<TKey>::small_left_rotate(TreeNode<TKey> *root) {
-  auto new_root = root->m_RightChild;
+TreeNode<TKey> *AvlTree<TKey>::smallLeftRotate(TreeNode<TKey> *root) {
+  auto newRoot = root->m_RightChild;
 
-  if (new_root == nullptr) {
+  if (newRoot == nullptr) {
     throw std::exception();
   }
 
-  root->m_RightChild = new_root->m_LeftChild;
-  new_root->m_LeftChild = root;
+  root->m_RightChild = newRoot->m_LeftChild;
+  newRoot->m_LeftChild = root;
 
-  fix_node(root);
-  fix_node(new_root);
+  fixNode(root);
+  fixNode(newRoot);
 
-  return new_root;
+  return newRoot;
 }
 template <typename TKey>
-TreeNode<TKey> *AvlTree<TKey>::small_right_rotate(TreeNode<TKey> *root) {
-  auto new_root = root->m_LeftChild;
+TreeNode<TKey> *AvlTree<TKey>::smallRightRotate(TreeNode<TKey> *root) {
+  auto newRoot = root->m_LeftChild;
 
-  if (new_root == nullptr) {
+  if (newRoot == nullptr) {
     throw std::exception();
   }
 
-  root->m_LeftChild = new_root->m_RightChild;
-  new_root->m_RightChild = root;
+  root->m_LeftChild = newRoot->m_RightChild;
+  newRoot->m_RightChild = root;
 
-  fix_node(root);
-  fix_node(new_root);
+  fixNode(root);
+  fixNode(newRoot);
 
-  return new_root;
+  return newRoot;
 }
 
-template <typename TKey> void AvlTree<TKey>::fix_node(TreeNode<TKey> *node) {
+template <typename TKey> void AvlTree<TKey>::fixNode(TreeNode<TKey> *node) {
   node->m_Height =
-      std::max(get_height(node->m_LeftChild), get_height(node->m_RightChild)) +
-      1;
+      std::max(getHeight(node->m_LeftChild), getHeight(node->m_RightChild)) + 1;
 
   node->m_Prev = nullptr;
   node->m_Next = nullptr;
@@ -333,7 +326,7 @@ template <typename TKey> void AvlTree<TKey>::fix_node(TreeNode<TKey> *node) {
 }
 
 template <typename TKey>
-int AvlTree<TKey>::get_children_num(const TreeNode<TKey> *node) {
+int AvlTree<TKey>::getChildrenNum(const TreeNode<TKey> *node) {
   if (node == nullptr) {
     return 0;
   }
@@ -342,7 +335,7 @@ int AvlTree<TKey>::get_children_num(const TreeNode<TKey> *node) {
 }
 template <typename TKey>
 
-int AvlTree<TKey>::get_height(const TreeNode<TKey> *node) {
+int AvlTree<TKey>::getHeight(const TreeNode<TKey> *node) {
   if (node == nullptr) {
     return 0;
   }

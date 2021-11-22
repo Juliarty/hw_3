@@ -66,7 +66,7 @@ public:
 
   void insert(T key) { m_Tree.add(key); }
   void erase(T key) { m_Tree.remove(key); }
-  bool contains(T key) { return m_Tree.exist(key); }
+  bool contains(T key) { return m_Tree.exists(key); }
   void clear() { return m_Tree.clear(); }
   Set<T> &operator=(const Set<T> &other);
 
