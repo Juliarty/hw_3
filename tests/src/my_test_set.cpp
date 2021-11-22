@@ -147,4 +147,35 @@ TEST(setIterator, rangeForTest) {
   for (auto el : set) {
     EXPECT_EQ(i++, el);
   }
+  EXPECT_EQ(5, i);
+}
+
+TEST(constMethods, sizeTest) {
+  const size_t ELEMENTS_NUM = 123456;
+  Set<int> set;
+
+  for (size_t i = 0; i < ELEMENTS_NUM; ++i) {
+    set.insert(i * 5 + 1);
+  }
+
+  EXPECT_EQ(ELEMENTS_NUM, set.size());
+  set.clear();
+  EXPECT_EQ(0, set.size());
+
+  set.insert(1);
+  EXPECT_NE(0, set.size());
+
+  set.erase(1);
+  EXPECT_EQ(0, set.size());
+}
+
+TEST(constMethods, emptyTest) {
+  Set<int> set;
+  EXPECT_EQ(true, set.empty());
+
+  set.insert(1);
+  EXPECT_EQ(false, set.empty());
+
+  set.erase(1);
+  EXPECT_EQ(true, set.empty());
 }

@@ -66,8 +66,11 @@ public:
 
   void insert(T key) { m_Tree.add(key); }
   void erase(T key) { m_Tree.remove(key); }
-  bool contains(T key) { return m_Tree.exists(key); }
+  bool contains(T key) const { return m_Tree.exists(key); }
   void clear() { return m_Tree.clear(); }
+
+  size_t size() const;
+  bool empty() const;
   Set<T> &operator=(const Set<T> &other);
 
 private:
@@ -93,6 +96,8 @@ template <typename T> Set<T> &Set<T>::operator=(const Set<T> &other) {
   m_Tree = AvlTree<T>(other.m_Tree);
   return *this;
 }
+template <typename T> size_t Set<T>::size() const { return m_Tree.size(); }
+template <typename T> bool Set<T>::empty() const { return size() == 0; }
 
 template <typename T> class SetConstIterator {
 public:

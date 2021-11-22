@@ -14,7 +14,7 @@ public:
   TreeNode(TKey key, int height = 1)
       : m_Key(key), m_Height(height), m_LeftChild(nullptr),
         m_RightChild(nullptr), m_Prev(nullptr), m_Next(nullptr),
-        m_LeftmostNode(this), m_RightmostNode(this) {}
+        m_LeftmostNode(this), m_RightmostNode(this), m_TreeSize(1) {}
   friend AvlTree<TKey>;
   friend AvlTreeConstIterator<TKey>;
 
@@ -30,6 +30,7 @@ protected:
   TreeNode<TKey> *m_Next;
   TreeNode<TKey> *m_LeftmostNode;
   TreeNode<TKey> *m_RightmostNode;
+  size_t m_TreeSize;
 };
 
 template <typename TKey> class AvlTree {
@@ -47,7 +48,7 @@ public:
   void clear();
   const_iterator begin() const;
   const_iterator end() const;
-
+  size_t size() const;
   AvlTree<TKey> &operator=(const AvlTree<TKey> &other);
 
 private:
@@ -103,12 +104,14 @@ template <typename TKey> void AvlTree<TKey>::removeAll(TreeNode<TKey> *root) {
   auto leftChild = root->m_LeftChild;
   auto rightChild = root->m_RightChild;
   delete root;
-
   removeAll(leftChild);
   removeAll(rightChild);
 }
 
-template <typename TKey> void AvlTree<TKey>::clear() { removeAll(m_Root); }
+template <typename TKey> void AvlTree<TKey>::clear() {
+  removeAll(m_Root);
+  m_Root = nullptr;
+}
 
 template <typename TKey> AvlTree<TKey>::AvlTree(const AvlTree<TKey> &other) {
   m_Root = copy(other.m_Root);
@@ -246,6 +249,12 @@ const TreeNode<TKey> *AvlTree<TKey>::prev(TKey key) const {
   }
   return res;
 }
+template <typename TKey> size_t AvlTree<TKey>::size() const {
+  if (m_Root == nullptr) {
+    return 0;
+  }
+  return m_Root->m_TreeSize;
+}
 
 template <typename TKey>
 TreeNode<TKey> *AvlTree<TKey>::balance(TreeNode<TKey> *root) {
@@ -269,6 +278,7 @@ TreeNode<TKey> *AvlTree<TKey>::balance(TreeNode<TKey> *root) {
     return smallLeftRotate(root);
   }
 }
+
 template <typename TKey>
 int AvlTree<TKey>::getBalance(const TreeNode<TKey> *root) {
   if (root == nullptr) {
@@ -324,6 +334,8 @@ template <typename TKey> void AvlTree<TKey>::fixNode(TreeNode<TKey> *node) {
   node->m_Height =
       std::max(getHeight(node->m_LeftChild), getHeight(node->m_RightChild)) + 1;
 
+  node->m_TreeSize = 1;
+
   node->m_Prev = nullptr;
   node->m_Next = nullptr;
   node->m_LeftmostNode = node;
@@ -333,12 +345,16 @@ template <typename TKey> void AvlTree<TKey>::fixNode(TreeNode<TKey> *node) {
     node->m_Prev = node->m_LeftChild->m_RightmostNode;
     node->m_LeftChild->m_RightmostNode->m_Next = node;
     node->m_LeftmostNode = node->m_LeftChild->m_LeftmostNode;
+
+    node->m_TreeSize += node->m_LeftChild->m_TreeSize;
   }
 
   if (node->m_RightChild != nullptr) {
     node->m_Next = node->m_RightChild->m_LeftmostNode;
     node->m_RightChild->m_LeftmostNode->m_Prev = node;
     node->m_RightmostNode = node->m_RightChild->m_RightmostNode;
+
+    node->m_TreeSize += node->m_RightChild->m_TreeSize;
   }
 }
 
