@@ -69,16 +69,18 @@ private:
 
 template <typename TKey>
 typename AvlTree<TKey>::const_iterator AvlTree<TKey>::begin() const {
-  AvlTree<TKey>::const_iterator res = AvlTree<TKey>::const_iterator();
   if (m_Root != nullptr) {
-    res.m_Node = m_Root->m_LeftmostNode;
+    return AvlTree<TKey>::const_iterator(m_Root->m_LeftmostNode, nullptr);
   }
-  return res;
+  return AvlTree<TKey>::const_iterator(nullptr, nullptr);
 }
 
 template <typename TKey>
 typename AvlTree<TKey>::const_iterator AvlTree<TKey>::end() const {
-  return AvlTree<TKey>::const_iterator();
+  if (m_Root != nullptr) {
+    return AvlTree<TKey>::const_iterator(nullptr, m_Root->m_RightmostNode);
+  }
+  return AvlTree<TKey>::const_iterator(nullptr, nullptr);
 }
 
 template <typename TKey>
@@ -191,9 +193,10 @@ TreeNode<TKey> *AvlTree<TKey>::remove(TKey key, TreeNode<TKey> *root) {
       root = tmp.m_RightChild;
     } else {
       const TreeNode<TKey> *leftMax = findMax(root->m_LeftChild);
-
-      root->m_Key = leftMax->m_Key;
-      root->m_LeftChild = remove(leftMax->m_Key, root->m_LeftChild);
+      if (leftMax != nullptr) {
+        root->m_Key = leftMax->m_Key;
+        root->m_LeftChild = remove(leftMax->m_Key, root->m_LeftChild);
+      }
     }
   }
 
@@ -205,6 +208,10 @@ TreeNode<TKey> *AvlTree<TKey>::remove(TKey key, TreeNode<TKey> *root) {
 }
 template <typename TKey>
 const TreeNode<TKey> *AvlTree<TKey>::findMax(const TreeNode<TKey> *root) {
+  if (root == nullptr) {
+    return nullptr;
+  }
+
   if (root->m_RightChild == nullptr) {
     return root;
   }
@@ -272,6 +279,9 @@ int AvlTree<TKey>::getBalance(const TreeNode<TKey> *root) {
 }
 template <typename TKey>
 TreeNode<TKey> *AvlTree<TKey>::smallLeftRotate(TreeNode<TKey> *root) {
+  if (root == nullptr) {
+    return nullptr;
+  }
   auto newRoot = root->m_RightChild;
 
   if (newRoot == nullptr) {
@@ -288,6 +298,9 @@ TreeNode<TKey> *AvlTree<TKey>::smallLeftRotate(TreeNode<TKey> *root) {
 }
 template <typename TKey>
 TreeNode<TKey> *AvlTree<TKey>::smallRightRotate(TreeNode<TKey> *root) {
+  if (root == nullptr) {
+    return nullptr;
+  }
   auto newRoot = root->m_LeftChild;
 
   if (newRoot == nullptr) {
@@ -304,6 +317,10 @@ TreeNode<TKey> *AvlTree<TKey>::smallRightRotate(TreeNode<TKey> *root) {
 }
 
 template <typename TKey> void AvlTree<TKey>::fixNode(TreeNode<TKey> *node) {
+  if (node == nullptr) {
+    return;
+  }
+
   node->m_Height =
       std::max(getHeight(node->m_LeftChild), getHeight(node->m_RightChild)) + 1;
 
@@ -351,7 +368,6 @@ public:
   typedef T *pointer;
   typedef const T *const_pointer;
   typedef std::bidirectional_iterator_tag iterator_category;
-  AvlTreeConstIterator() : m_Node(nullptr) {}
 
   const T &operator*() const;
   AvlTreeConstIterator &operator++();
@@ -364,7 +380,10 @@ public:
   friend AvlTree<T>;
 
 private:
+  AvlTreeConstIterator(TreeNode<T> *node, TreeNode<T> *prevNode)
+      : m_Node(node), m_PrevNode(prevNode) {}
   TreeNode<T> *m_Node;
+  TreeNode<T> *m_PrevNode;
 };
 
 template <typename T> const T &AvlTreeConstIterator<T>::operator*() const {
@@ -373,27 +392,39 @@ template <typename T> const T &AvlTreeConstIterator<T>::operator*() const {
 
 template <typename T>
 AvlTreeConstIterator<T> &AvlTreeConstIterator<T>::operator++() {
-  m_Node = m_Node->m_Next;
+  m_PrevNode = m_Node;
+  if (m_Node != nullptr) {
+    m_Node = m_Node->m_Next;
+  }
   return *this;
 }
 
 template <typename T>
 AvlTreeConstIterator<T> AvlTreeConstIterator<T>::operator++(int) {
   auto res = *this;
-  m_Node = m_Node->m_Next;
+  m_PrevNode = m_Node;
+  if (m_Node != nullptr) {
+    m_Node = m_Node->m_Next;
+  }
   return res;
 }
 
 template <typename T>
 AvlTreeConstIterator<T> &AvlTreeConstIterator<T>::operator--() {
-  m_Node = m_Node->m_Prev;
+  m_Node = m_PrevNode;
+  if (m_Node != nullptr) {
+    m_PrevNode = m_Node->m_Prev;
+  }
   return *this;
 }
 
 template <typename T>
 AvlTreeConstIterator<T> AvlTreeConstIterator<T>::operator--(int) {
   auto res = *this;
-  m_Node = m_Node->m_Prev;
+  m_Node = m_PrevNode;
+  if (m_Node != nullptr) {
+    m_PrevNode = m_Node->m_Prev;
+  }
   return res;
 }
 

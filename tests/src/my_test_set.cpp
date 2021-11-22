@@ -114,13 +114,11 @@ TEST(setIterator, decrementTest) {
     setA.insert((double)i);
   }
 
-  int i = 5;
-  auto it = std::next(setA.begin(), 5);
-
+  int i = ELEMENTS_NUM;
+  auto it = --setA.end();
   for (; it != setA.begin(); --it) {
-    EXPECT_EQ(i--, *it);
+    EXPECT_EQ(--i, *it);
   }
 
-  EXPECT_EQ(i, *it);
-  EXPECT_EQ(0, i);
+  EXPECT_EQ(0, *it);
 }

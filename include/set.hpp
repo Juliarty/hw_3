@@ -111,6 +111,9 @@ public:
   SetConstIterator<T> operator--(int);
 
   bool operator==(const SetConstIterator<T> &other) const {
+    if (other == nullptr) {
+      return false;
+    }
     return m_AvlTreeConstIterator == other.m_AvlTreeConstIterator;
   }
   bool operator!=(const SetConstIterator<T> &other) const {
