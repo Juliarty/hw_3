@@ -30,10 +30,10 @@ jobs:
     - name: Build
       run: cd build && make
     - name: Test
-      run: cd build && ./tests/test_setlib
+      run: cd build && ./tests/test_setlib && ./tests/extra_test/extra_test_setlib 
     - name: report
       run: cd build && lcov -t test_setlib -d . --exclude *gtest* --exclude *bits* --exclude *c++* -o coverage.info -c && genhtml -o report coverage.info
     - name: Linter cppcheck
       run:  cppcheck ./tests/* --enable=all --inconclusive --error-exitcode=1  -I ./include/ --suppress=missingIncludeSystem
     - name: Check memory leaks
-      run:  cd build && valgrind --tool=memcheck --leak-check=yes ./tests/test_setlib 
+      run:  cd build && valgrind --tool=memcheck --leak-check=yes ./tests/test_setlib && valgrind --tool=memcheck --leak-check=yes ./tests/extra_test/extra_test_setlib 

@@ -13,3 +13,5 @@ add_library(${PROJECT_NAME} SHARED ${SETLIB_HEADERS})
 set_target_properties(setlib PROPERTIES LINKER_LANGUAGE CXX)
 target_include_directories(${PROJECT_NAME} PUBLIC ${SETLIB_INCLUDE_DIRS})
 add_subdirectory(tests)
+
+add_subdirectory(tests/extra_test)

@@ -54,6 +54,8 @@ template <typename T> class SetConstIterator;
 template <typename T> class Set {
 public:
   typedef SetConstIterator<T> const_iterator;
+  typedef SetConstIterator<T> iterator;
+
   Set() : m_Tree() {}
   template <typename InputIterator>
   Set(InputIterator first, InputIterator last);
@@ -115,7 +117,10 @@ public:
   typedef const T *const_pointer;
   typedef std::bidirectional_iterator_tag iterator_category;
 
+  SetConstIterator() : m_AvlTreeConstIterator() {}
   const T &operator*() const { return *m_AvlTreeConstIterator; };
+  const T *operator->() const { return &*m_AvlTreeConstIterator; }
+
   SetConstIterator<T> &operator++();
   SetConstIterator<T> operator++(int);
   SetConstIterator<T> &operator--();

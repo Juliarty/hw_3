@@ -92,7 +92,7 @@ typename AvlTree<TKey>::const_iterator AvlTree<TKey>::end() const {
 template <typename TKey>
 typename AvlTree<TKey>::const_iterator AvlTree<TKey>::find(TKey key) const {
   const TreeNode<TKey> *resNode = lower_bound(key, m_Root);
-  if (resNode == nullptr || resNode->m_Key != key) {
+  if (resNode == nullptr || (resNode->m_Key < key || key < resNode->m_Key)) {
     return AvlTreeConstIterator<TKey>(nullptr, m_Root->m_RightmostNode);
   }
 
@@ -116,10 +116,11 @@ TreeNode<TKey> *AvlTree<TKey>::copy(TreeNode<TKey> *root) {
     return nullptr;
   }
 
-  auto result = new TreeNode<TKey>(root->m_Key, root->m_Height);
+  TreeNode<TKey> *result = new TreeNode<TKey>(root->m_Key, root->m_Height);
   result->m_LeftChild = copy(root->m_LeftChild);
   result->m_RightChild = copy(root->m_RightChild);
 
+  fixNode(result);
   return result;
 }
 
@@ -170,7 +171,7 @@ TreeNode<TKey> *AvlTree<TKey>::add(TKey key, TreeNode<TKey> *node) {
 
   if (key < node->m_Key) {
     node->m_LeftChild = add(key, node->m_LeftChild);
-  } else if (key > node->m_Key) {
+  } else if (node->m_Key < key) {
     node->m_RightChild = add(key, node->m_RightChild);
   }
 
@@ -186,17 +187,17 @@ const TreeNode<TKey> *AvlTree<TKey>::lower_bound(TKey key,
     return nullptr;
   }
 
-  if (key == root->m_Key) {
-    return root;
-  } else if (key < root->m_Key) {
+  if (key < root->m_Key) {
     auto res = AvlTree<TKey>::lower_bound(key, root->m_LeftChild);
     if (res == nullptr) {
       return root;
     }
 
     return res;
-  } else {
+  } else if (root->m_Key < key) {
     return AvlTree<TKey>::lower_bound(key, root->m_RightChild);
+  } else {
+    return root;
   }
 }
 
@@ -418,7 +419,7 @@ public:
   typedef T *pointer;
   typedef const T *const_pointer;
   typedef std::bidirectional_iterator_tag iterator_category;
-
+  AvlTreeConstIterator() : m_Node(nullptr), m_PrevNode(nullptr) {}
   const T &operator*() const;
   AvlTreeConstIterator &operator++();
   AvlTreeConstIterator operator++(int);
