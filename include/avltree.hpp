@@ -40,22 +40,27 @@ public:
   AvlTree() : m_Root(nullptr) {}
   AvlTree(const AvlTree<TKey> &other);
   ~AvlTree() { removeAll(m_Root); }
+
   void add(TKey);
   const TreeNode<TKey> *next(TKey) const;
   const TreeNode<TKey> *prev(TKey) const;
   bool exists(TKey) const;
   void remove(TKey);
   void clear();
+  size_t size() const;
+
   const_iterator begin() const;
   const_iterator end() const;
-  size_t size() const;
+  const_iterator find(TKey) const;
+  const_iterator lower_bound(TKey) const;
+
   AvlTree<TKey> &operator=(const AvlTree<TKey> &other);
 
 private:
   TreeNode<TKey> *m_Root;
   static void removeAll(TreeNode<TKey> *root);
   static TreeNode<TKey> *add(TKey, TreeNode<TKey> *);
-  static const TreeNode<TKey> *find(TKey, const TreeNode<TKey> *);
+  static const TreeNode<TKey> *lower_bound(TKey, const TreeNode<TKey> *);
   static TreeNode<TKey> *remove(TKey, TreeNode<TKey> *);
   static const TreeNode<TKey> *findMax(const TreeNode<TKey> *);
   static TreeNode<TKey> *balance(TreeNode<TKey> *);
@@ -82,6 +87,27 @@ typename AvlTree<TKey>::const_iterator AvlTree<TKey>::end() const {
     return AvlTree<TKey>::const_iterator(nullptr, m_Root->m_RightmostNode);
   }
   return AvlTree<TKey>::const_iterator(nullptr, nullptr);
+}
+
+template <typename TKey>
+typename AvlTree<TKey>::const_iterator AvlTree<TKey>::find(TKey key) const {
+  const TreeNode<TKey> *resNode = lower_bound(key, m_Root);
+  if (resNode == nullptr || resNode->m_Key != key) {
+    return AvlTreeConstIterator<TKey>(nullptr, m_Root->m_RightmostNode);
+  }
+
+  return AvlTreeConstIterator<TKey>(resNode, resNode->m_Prev);
+}
+
+template <typename TKey>
+typename AvlTree<TKey>::const_iterator
+AvlTree<TKey>::lower_bound(TKey key) const {
+  const TreeNode<TKey> *resNode = lower_bound(key, m_Root);
+  if (resNode == nullptr) {
+    return AvlTreeConstIterator<TKey>(nullptr, m_Root->m_RightmostNode);
+  }
+
+  return AvlTreeConstIterator<TKey>(resNode, resNode->m_Prev);
 }
 
 template <typename TKey>
@@ -154,22 +180,30 @@ TreeNode<TKey> *AvlTree<TKey>::add(TKey key, TreeNode<TKey> *node) {
 }
 
 template <typename TKey>
-const TreeNode<TKey> *AvlTree<TKey>::find(TKey key,
-                                          const TreeNode<TKey> *root) {
+const TreeNode<TKey> *AvlTree<TKey>::lower_bound(TKey key,
+                                                 const TreeNode<TKey> *root) {
   if (root == nullptr) {
     return nullptr;
   }
+
   if (key == root->m_Key) {
     return root;
   } else if (key < root->m_Key) {
-    return AvlTree<TKey>::find(key, root->m_LeftChild);
+    auto res = AvlTree<TKey>::lower_bound(key, root->m_LeftChild);
+    if (res == nullptr) {
+      return root;
+    }
+
+    return res;
   } else {
-    return AvlTree<TKey>::find(key, root->m_RightChild);
+    return AvlTree<TKey>::lower_bound(key, root->m_RightChild);
   }
 }
 
 template <typename TKey> bool AvlTree<TKey>::exists(TKey key) const {
-  return find(key, this->m_Root) != nullptr;
+  const TreeNode<TKey> *resNode = lower_bound(key, this->m_Root);
+
+  return resNode != nullptr && resNode->m_Key == key;
 }
 
 // Returns the root pointer to the modified tree.
@@ -396,10 +430,10 @@ public:
   friend AvlTree<T>;
 
 private:
-  AvlTreeConstIterator(TreeNode<T> *node, TreeNode<T> *prevNode)
+  AvlTreeConstIterator(const TreeNode<T> *node, const TreeNode<T> *prevNode)
       : m_Node(node), m_PrevNode(prevNode) {}
-  TreeNode<T> *m_Node;
-  TreeNode<T> *m_PrevNode;
+  const TreeNode<T> *m_Node;
+  const TreeNode<T> *m_PrevNode;
 };
 
 template <typename T> const T &AvlTreeConstIterator<T>::operator*() const {

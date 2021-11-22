@@ -179,3 +179,21 @@ TEST(constMethods, emptyTest) {
   set.erase(1);
   EXPECT_EQ(true, set.empty());
 }
+
+TEST(constMethods, findTest) {
+  Set<int> set{-1, 0, 1, 2, 4, 5};
+
+  EXPECT_EQ(1, *set.find(1));
+  EXPECT_EQ(5, *set.find(5));
+
+  set.erase(1);
+  EXPECT_EQ(set.end(), set.find(1));
+}
+
+TEST(constMethods, lowerBoundTest) {
+  Set<int> set{-1, 0, 1, 2, 4, 5};
+  EXPECT_EQ(-1, *set.lower_bound(-2));
+  EXPECT_EQ(-1, *set.lower_bound(-1));
+  EXPECT_EQ(4, *set.lower_bound(3));
+  EXPECT_EQ(set.end(), set.lower_bound(6));
+}

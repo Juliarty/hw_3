@@ -63,6 +63,12 @@ public:
 
   const_iterator begin() const { return SetConstIterator<T>(m_Tree.begin()); }
   const_iterator end() const { return SetConstIterator<T>(m_Tree.end()); }
+  const_iterator find(T key) const {
+    return SetConstIterator<T>(m_Tree.find(key));
+  }
+  const_iterator lower_bound(T key) const {
+    return SetConstIterator<T>(m_Tree.lower_bound(key));
+  }
 
   void insert(T key) { m_Tree.add(key); }
   void erase(T key) { m_Tree.remove(key); }
@@ -116,9 +122,6 @@ public:
   SetConstIterator<T> operator--(int);
 
   bool operator==(const SetConstIterator<T> &other) const {
-    if (other == nullptr) {
-      return false;
-    }
     return m_AvlTreeConstIterator == other.m_AvlTreeConstIterator;
   }
   bool operator!=(const SetConstIterator<T> &other) const {
