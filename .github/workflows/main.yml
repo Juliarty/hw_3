@@ -35,8 +35,15 @@ jobs:
       run: cd build && ./tests/extra_test/extra_test_setlib
     - name: speed Test
       run: cd build && ./tests/speed_test/speed_test_setlib 
-    - name: report
-      run: cd build && lcov -t test_setlib -d . --exclude *gtest* --exclude *bits* --exclude *c++* -o coverage.info -c && genhtml -o report coverage.info
+    - name: generate report
+      run: cd build && mkdir report && gcovr -r .. -x -o ./report/coverage.xml
+    - name: upload the report to CodeCov
+    - uses: actions/checkout@master
+    - uses: codecov/codecov-action@v2
+      with:
+        token: ${{ secrets.CODECOV_SECRET }}
+        directory: ./build/report/
+        files: ./coverage.xml
     - name: Linter cppcheck
       run:  cppcheck ./tests/src ./tests/speed_test/src --enable=all --inconclusive --error-exitcode=1  -I ./include/ --suppress=missingIncludeSystem
     - name: Check memory leaks
