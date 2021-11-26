@@ -38,8 +38,7 @@ jobs:
     - name: generate report
       run: cd build && mkdir report && gcovr -r .. -x -o ./report/coverage.xml
     - name: upload the report to CodeCov
-    - uses: actions/checkout@master
-    - uses: codecov/codecov-action@v2
+      uses: codecov/codecov-action@v2
       with:
         token: ${{ secrets.CODECOV_SECRET }}
         directory: ./build/report/
