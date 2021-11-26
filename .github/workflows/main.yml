@@ -38,11 +38,11 @@ jobs:
     - name: generate report
       run: cd build && mkdir report && gcovr -r .. -x -o ./report/coverage.xml
     - name: upload the report to CodeCov
-      run: cd /build/report && ls -l
       uses: codecov/codecov-action@v2
       with:
         token: ${{ secrets.CODECOV_SECRET }}
-        files: ./coverage.xml
+        files: ./build/report/coverage.xml
+        fail_ci_if_error: true
     - name: Linter cppcheck
       run:  cppcheck ./tests/src ./tests/speed_test/src --enable=all --inconclusive --error-exitcode=1  -I ./include/ --suppress=missingIncludeSystem
     - name: Check memory leaks
