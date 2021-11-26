@@ -15,8 +15,8 @@ jobs:
       run: sudo apt-get install libgtest-dev 
     - name: Build gtest
       run: cd /usr/src/gtest && sudo cmake CMakeLists.txt && sudo make 
-    - name: Install lcov
-      run: sudo apt-get install lcov
+    - name: Install gcovr
+      run: sudo apt-get install gcovr
     - name: Install cppcheck
       run:  sudo apt-get install cppcheck
     - name: Install clang-format
