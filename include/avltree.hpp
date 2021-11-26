@@ -4,8 +4,6 @@
 #include <string>
 #include <tuple>
 
-using std::tuple;
-
 template <typename TKey> class AvlTree;
 template <typename T> class AvlTreeConstIterator;
 

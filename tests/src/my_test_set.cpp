@@ -28,65 +28,65 @@ TEST(createSet, initListCreationTest) {
 }
 
 TEST(createSet, copyConstructorCreationTest) {
-  const int ELEMENTS_NUM = 100;
+  static const int kElementsNum = 100;
   Set<double> setA;
 
-  for (size_t i = 0; i < ELEMENTS_NUM; ++i) {
+  for (size_t i = 0; i < kElementsNum; ++i) {
     setA.insert((double)i);
   }
 
   Set<double> setB(setA);
 
-  for (size_t i = 0; i < ELEMENTS_NUM; ++i) {
+  for (size_t i = 0; i < kElementsNum; ++i) {
     setA.erase((double)i);
     EXPECT_EQ(true, setB.contains((double)i));
   }
 }
 
 TEST(createSet, assigmentOpetorTest) {
-  const int ELEMENTS_NUM = 100;
+  static const int kElementsNum = 100;
   Set<double> setA, setB;
 
-  for (size_t i = 0; i < ELEMENTS_NUM; ++i) {
+  for (size_t i = 0; i < kElementsNum; ++i) {
     setA.insert((double)i);
     setB.insert((double)-i);
   }
 
   setA = setB;
-  for (size_t i = 0; i < ELEMENTS_NUM; ++i) {
+  for (size_t i = 0; i < kElementsNum; ++i) {
     setB.erase((double)i);
     EXPECT_EQ(true, setA.contains((double)-i));
   }
 }
 
 TEST(manipulationOperations, insertTest) {
-  const int ELEMENTS_NUM = 100000;
+  static const int kElementsNum = 100000;
   Set<double> setA;
 
-  for (size_t i = 0; i < ELEMENTS_NUM; ++i) {
+  for (size_t i = 0; i < kElementsNum; ++i) {
     setA.insert((double)i);
   }
 
-  for (size_t i = 0; i < ELEMENTS_NUM; ++i) {
+  for (size_t i = 0; i < kElementsNum; ++i) {
     EXPECT_EQ(true, setA.contains((double)i));
   }
 }
 
 TEST(manipulationOperations, eraseTest) {
-  const int ELEMENTS_NUM = 100000;
+  static const int kElementsNum = 100000;
   Set<double> setA;
 
-  for (size_t i = 0; i < ELEMENTS_NUM; ++i) {
+  for (size_t i = 0; i < kElementsNum; ++i) {
     setA.insert((double)i);
   }
 
-  for (size_t i = 0; i < ELEMENTS_NUM / 2; ++i) {
+  for (size_t i = 0; i < kElementsNum / 2; ++i) {
     setA.erase((double)i);
-    setA.erase(ELEMENTS_NUM - (double)i);
+    setA.erase(kElementsNum - (double)i);
   }
 
-  for (size_t i = 0; i < ELEMENTS_NUM; ++i) {
-    if (i == ELEMENTS_NUM / 2) {
+  for (size_t i = 0; i < kElementsNum; ++i) {
+    if (i == kElementsNum / 2) {
       EXPECT_EQ(true, setA.contains((double)i));
     } else {
       EXPECT_EQ(false, setA.contains((double)i));
@@ -95,10 +95,10 @@ TEST(manipulationOperations, eraseTest) {
 }
 
 TEST(setIterator, incrementTest) {
-  const int ELEMENTS_NUM = 100000;
+  static const size_t kElementsNum = 100000;
   Set<double> set;
 
-  for (size_t i = 0; i < ELEMENTS_NUM; ++i) {
+  for (size_t i = 0; i < kElementsNum; ++i) {
     set.insert((double)i);
   }
 
@@ -107,18 +107,18 @@ TEST(setIterator, incrementTest) {
     EXPECT_EQ(i++, *it);
   }
 
-  EXPECT_EQ(ELEMENTS_NUM, i);
+  EXPECT_EQ(kElementsNum, i);
 }
 
 TEST(setIterator, decrementTest) {
-  const int ELEMENTS_NUM = 100000;
+  static const size_t kElementsNum = 100000;
   Set<double> set;
 
-  for (size_t i = 0; i < ELEMENTS_NUM; ++i) {
+  for (size_t i = 0; i < kElementsNum; ++i) {
     set.insert((double)i);
   }
 
-  int i = ELEMENTS_NUM;
+  int i = kElementsNum;
   auto it = --set.end();
   for (; it != set.begin(); --it) {
     EXPECT_EQ(--i, *it);
@@ -155,14 +155,14 @@ TEST(setIterator, rangeForTest) {
 }
 
 TEST(constMethods, sizeTest) {
-  const size_t ELEMENTS_NUM = 123456;
+  static const size_t kElementsNum = 123456;
   Set<int> set;
 
-  for (size_t i = 0; i < ELEMENTS_NUM; ++i) {
+  for (size_t i = 0; i < kElementsNum; ++i) {
     set.insert(i * 5 + 1);
   }
 
-  EXPECT_EQ(ELEMENTS_NUM, set.size());
+  EXPECT_EQ(kElementsNum, set.size());
   set.clear();
   EXPECT_EQ(0, set.size());
 
@@ -203,12 +203,12 @@ TEST(constMethods, lowerBoundTest) {
 }
 
 TEST(integrationTest, randomElementsTest) {
-  const size_t MAX_ELEMENT = 1e5;
-  const size_t ELEMENTS_NUM = 1e5;
-  std::array<int, ELEMENTS_NUM> data;
+  static const size_t kMaxElement = 1e5;
+  static const size_t kElementsNum = 1e5;
+  std::array<int, kElementsNum> data;
   std::mt19937 gen(42);
   std::for_each(data.begin(), data.end(),
-                [&](int &a) { a = gen() % MAX_ELEMENT; });
+                [&](int &a) { a = gen() % kMaxElement; });
 
   Set<int> mySet(data.begin(), data.end());
   std::set<int> stdSet(data.begin(), data.end());
@@ -240,7 +240,7 @@ TEST(integrationTest, randomElementsTest) {
     mySet.erase(el);
     stdSet.erase(el);
 
-    auto tmp = gen() % MAX_ELEMENT;
+    auto tmp = gen() % kMaxElement;
     auto myLowerBound = mySet.lower_bound(tmp);
     auto stdLowerBound = stdSet.lower_bound(tmp);
 

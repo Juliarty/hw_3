@@ -9,7 +9,7 @@ set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} --coverage -shared -
 set(SETLIB_INCLUDE_DIRS ${SETLIB_INCLUDE_DIRS} ${CMAKE_HOME_DIRECTORY}/include/)
 set(SETLIB_HEADERS ${SETLIB_HEADERS} ${CMAKE_HOME_DIRECTORY}/include/set.hpp)
 
-add_library(${PROJECT_NAME} SHARED ${SETLIB_HEADERS})
+add_library(${PROJECT_NAME} STATIC ${SETLIB_HEADERS})
 set_target_properties(setlib PROPERTIES LINKER_LANGUAGE CXX)
 target_include_directories(${PROJECT_NAME} PUBLIC ${SETLIB_INCLUDE_DIRS})
 add_subdirectory(tests)

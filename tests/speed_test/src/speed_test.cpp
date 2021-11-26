@@ -15,13 +15,13 @@
 void speedTestFramework(
     void (*myFunc)(Set<int> &, int), void (*stdFunc)(std::set<int> &, int),
     const size_t elementsNum = TEST_DATA_ELEMENTS_NUM,
-    const unsigned int decreaseCoef = TEST_PERFORMANCE_DECREASE_COEFF) {
-  const size_t MAX_ELEMENT = elementsNum / 3;
+    unsigned int decreaseCoef = TEST_PERFORMANCE_DECREASE_COEFF) {
+  static const size_t kMaxElement = elementsNum / 3;
   std::vector<int> data(elementsNum);
   EXPECT_EQ(data.size(), elementsNum);
   std::mt19937 gen(42);
   std::for_each(data.begin(), data.end(),
-                [&](int &a) { a = gen() % MAX_ELEMENT; });
+                [&](int &a) { a = gen() % kMaxElement; });
   Set<int> mySet(data.begin(), data.end());
   std::set<int> stdSet(data.begin(), data.end());
   int myStart = clock();
@@ -55,12 +55,12 @@ TEST(speedTest, findSpeedTest) {
 }
 
 TEST(speedTest, iteratorSpeedTest) {
-  const size_t ELEMENTS_NUM = 1e6;
-  const size_t ITERATOR_SHIFT = 100;
+  static const size_t kElementsNum = 1e6;
+  static const size_t kIteratorShift = 100;
   speedTestFramework(
-      [](Set<int> &set, int value) { std::next(set.begin(), ITERATOR_SHIFT); },
+      [](Set<int> &set, int value) { std::next(set.begin(), kIteratorShift); },
       [](std::set<int> &set, int value) {
-        std::next(set.begin(), ITERATOR_SHIFT);
+        std::next(set.begin(), kIteratorShift);
       },
-      ELEMENTS_NUM);
+      kElementsNum);
 }
