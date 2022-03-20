@@ -1,0 +1,49 @@
+name: C/C++ CI
+
+on: [push]
+
+jobs:
+  build-ubuntu:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install CMake
+      run: sudo apt-get install cmake
+    - name: Install gtest
+      run: sudo apt-get install libgtest-dev 
+    - name: Build gtest
+      run: cd /usr/src/gtest && sudo cmake CMakeLists.txt && sudo make 
+    - name: Install gcovr
+      run: sudo apt-get install gcovr
+    - name: Install cppcheck
+      run:  sudo apt-get install cppcheck
+    - name: Install clang-format
+      run: sudo apt-get install clang-format
+    - name: Install valgrind
+      run: sudo apt-get install valgrind
+    - name: Format code
+      run: clang-format --dry-run --Werror ./*/*.*pp ./tests/src/*.*pp ./tests/speed_test/src/*.*pp 
+    - name: Configure
+      run: mkdir build && cd build && cmake ..
+    - name: Build
+      run: cd build && make
+    - name: Test
+      run: cd build && ./tests/test_setlib
+    - name: leshiy1295 Test
+      run: cd build && ./tests/extra_test/extra_test_setlib
+    - name: speed Test
+      run: cd build && ./tests/speed_test/speed_test_setlib 
+    - name: generate report
+      run: cd build && mkdir report && gcovr -r .. -x -o ./report/coverage.xml
+    - name: upload the report to CodeCov
+      uses: codecov/codecov-action@v2
+      with:
+        token: ${{ secrets.CODECOV_SECRET }}
+        files: ./build/report/coverage.xml
+        fail_ci_if_error: true
+    - name: Linter cppcheck
+      run:  cppcheck ./tests/src ./tests/speed_test/src --enable=all --inconclusive --error-exitcode=1  -I ./include/ --suppress=missingIncludeSystem
+    - name: Check memory leaks
+      run:  cd build && valgrind --tool=memcheck --leak-check=yes ./tests/test_setlib && valgrind --tool=memcheck --leak-check=yes ./tests/extra_test/extra_test_setlib 
